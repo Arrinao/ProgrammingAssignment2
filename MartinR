@@ -1,0 +1,32 @@
+makeCacheMatrix <- function(x = matrix()) {
+  ## This function essentially "prepares" the matrix for caching it's inverse values. It contains a list of parent functions for
+  ## setting the matrix, getting the matrix, setting the inverse matrix and getting the inverse matrix.
+  ## This list will then be used as the input to cacheSolve()
+  invm <- NULL ## initialize invm as NULL. invm stands for "inverse matrix"; will hold value of inverse matrix 
+  set <- function(y) {
+    x <<- y ## y is the value of the matrix presented as x argument in parent environment. 
+    invm <<- NULL
+  }
+  get <- function() x ## returns value of x argument(matrix). Therefore "get"
+  setinverse <- function(z) invm <<- solve(z) ## assigns value of inv in parent environment
+  getinverse <- function() invm ## gets the value of invm - inverted matrix
+  list(set = set, get = get,
+       setinverse = setinverse,
+       getinverse = getinverse)  ## this is necessary for refering to the functions with the $ operator
+}
+
+cacheSolve <- function(x, ...) {
+  ## This function does the actual inverting of the matrix, that has been "prepared" by makeCachematrix function.
+  ## It also checks whether there is a similar matrix to the one currently computed in the cache.
+  ## If the matrix has already been inversed, this function won't compute anything and just retrieve it from the cache.
+  invm <- x$getinverse() ## This does the actual inverting stuff
+  if(!is.null(invm)) {
+    message("getting cached matrix")
+    return(invm) ## If the inverse has already been calculated, computation will be skipped, and result retrieved from cache.
+  }
+  ## Otherwise the function will inverse the matrix and set the value of the inverse matrix ( to store it in the cache for future uses)
+  unit <- x$get()
+  invm <- solve(unit, ...)
+  x$setinverse(invm)
+  invm
+}
